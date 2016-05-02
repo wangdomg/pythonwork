@@ -26,7 +26,7 @@ def get_data():
 			if number == 0: #说明是该类别的第一个页面，它与后续页面的url格式是不同的
 				request = urllib2.Request(urls[i])
 			else: #说明是该类别的后续页面
-				request = urllib2.Request(urls[i] + '?start=' + number + '&type=T')
+				request = urllib2.Request(urls[i] + '?start=' + str(number) + '&type=T')
 			response = urllib2.urlopen(request)
 			response = response.read()
 			soup = bs4.BeautifulSoup(response, 'html.parser')
@@ -46,7 +46,7 @@ def get_data():
 				firstbrother = parent.next_sibling.next_sibling #这是父节点的第一个兄弟节点，包含了对这本书的描述
 				secondbrother = firstbrother.next_sibling.next_sibling #这是父节点的第二个兄弟节点，它的第二个子节点包含了对这本书的评分
 				book_description = firstbrother.string #书的描述
-				book_rating = secondbrother.contents[1] .string #书的评分
+				book_rating = secondbrother.contents[3] .string #书的评分
 				file_object.write(book_name + ' ' + book_description + ' ' + book_rating + '\n')
 
 			number += 20 #用于构建下一个页面的url
