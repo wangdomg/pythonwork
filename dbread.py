@@ -33,7 +33,7 @@ def get_data():
 			tags_a = soup.find_all('a', href = re.compile(r'https://book.douban.com/subject/'))
             
             #判断列表是否为空，实际上是判断是否已经爬完每一种类的每一个页面
-			if !tags_a:
+			if not tags_a:
 				file_object.write('\n\n') #爬完了一个种类，与下一个种类之间保持间隔
 				break
 	       
@@ -50,6 +50,7 @@ def get_data():
 
 			number += 20 #用于构建下一个页面的url
 
-			
+if __name__ = '__main__':
+	get_data()
 		
 
