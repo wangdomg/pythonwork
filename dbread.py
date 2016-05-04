@@ -46,7 +46,11 @@ def get_data():
 				firstbrother = parent.next_sibling.next_sibling #这是父节点的第一个兄弟节点，包含了对这本书的描述
 				secondbrother = firstbrother.next_sibling.next_sibling #这是父节点的第二个兄弟节点，它的第二个子节点包含了对这本书的评分
 				book_description = firstbrother.string #书的描述
-				book_rating = secondbrother.contents[3] .string #书的评分
+				#这里判断书有没有评分
+				if len(secondbrother.contents) <= 3:
+					book_rating = secondbrother.contents[1] .string #书的评分
+				else:
+					book_rating = secondbrother.contents[3] .string #书的评分
 				file_object.write(book_name + ' ' + book_description + ' ' + book_rating + '\n')
 
 			number += 20 #用于构建下一个页面的url
