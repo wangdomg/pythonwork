@@ -6,6 +6,7 @@ import bs4
 import urllib, urllib2
 import re
 import sys
+import mysql.connector
 
 root_url = "https://book.douban.com/"
 
@@ -18,10 +19,13 @@ def get_urls(taglists):
 def get_data():
 	taglists = ['小说', '随笔', '散文', '日本文学', '童话', '诗歌', '名著', '港台']
 	urls = get_urls(taglists)
-	file_object = open('../dbread.txt', 'a')
+   
+	#下面打开数据库连接 
+	conn = mysql.connector.connect(user = 'root', password = 'root', database = 'pydatabase', use_unicode = True)
+	cursor = conn.cursor()
+
 	for i in range(0, len(urls)):
 		number = 0
-		file_object.write(taglists[i] + '\n')
 		while(True):
 			if number == 0: #说明是该类别的第一个页面，它与后续页面的url格式是不同的
 				request = urllib2.Request(urls[i])
@@ -34,7 +38,6 @@ def get_data():
             
             #判断列表是否为空，实际上是判断是否已经爬完每一种类的每一个页面
 			if not tags_a:
-				file_object.write('\n\n') #爬完了一个种类，与下一个种类之间保持间隔
 				break
 	       
 			#遍历该类别的每一个页面
@@ -48,12 +51,19 @@ def get_data():
 				book_description = firstbrother.string #书的描述
 				#这里判断书有没有评分
 				if len(secondbrother.contents) <= 3:
-					book_rating = secondbrother.contents[1] .string #书的评分
+					book_rating = secondbrother.contents[1] .string #没有评分
+					cursor.execute('insert into dbread (kind, name, description) values (%s, %s, %s)', [taglists[i], str(book_name), str( book_description)])
+
 				else:
-					book_rating = secondbrother.contents[3] .string #书的评分
-				file_object.write(book_name + ' ' + book_description + ' ' + book_rating + '\n')
+					book_rating = float(secondbrother.contents[3] .string) #有评分
+					cursor.execute('insert into dbread (kind, name, description, rating) values (%s, %s, %s, %s)', [taglists[i], str(book_name), str(book_description), book_rating])
 
 			number += 20 #用于构建下一个页面的url
+	
+	#下面关闭数据库连接
+	conn.commit()
+	cursor.close()
+	conn.close()
 
 if __name__ == '__main__':
 	''' 模块是对象，并且所有的模块都有一个内置属性 __name__。一个模块的 __name__ 的值取决于您如何应用模块。如果 import 一个模块，那么模块__name__ 的值通常为模块文件名，不带路径或者文件扩展名。但是您也可以像一个标准的程序样直接运行模块，在这 种情况下, __name__ 的值将是一个特别缺省"__main__"。'''
